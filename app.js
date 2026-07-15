@@ -754,7 +754,7 @@ function getSustainabilityAdvice(sessionPoints, badgeLevel) {
 // --- APPLICATION EVENT LOOPS ---
 // ==========================================
 
-document.addEventListener('DOMContentLoaded', () => {
+function bootstrap() {
   // --- STATE VARIABLES (Validated from LocalStorage) ---
   let currentLanguage = 'en';
   let geminiApiKey = localStorage.getItem('arena_pulse_gemini_key') || '';
@@ -1411,4 +1411,10 @@ document.addEventListener('DOMContentLoaded', () => {
       toastDiv.classList.add('hidden');
     }, 4000);
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootstrap);
+} else {
+  bootstrap();
+}
