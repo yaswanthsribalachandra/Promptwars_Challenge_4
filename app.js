@@ -774,14 +774,7 @@ function bootstrap() {
     textSize = 'normal';
   }
 
-  // --- INITIALIZE UI ENVIRONMENT ---
-  initSettings();
-  renderHeatmap();
 
-  // Lazy-load Lucide Icons
-  if (typeof window.lucide !== 'undefined') {
-    window.lucide.createIcons();
-  }
 
   // --- TAB NAVIGATION SYSTEM ---
   const navButtons = $$('.nav-btn');
@@ -1410,6 +1403,15 @@ function bootstrap() {
     setTimeout(() => {
       toastDiv.classList.add('hidden');
     }, 4000);
+  }
+
+  // --- INITIALIZE UI ENVIRONMENT ---
+  initSettings();
+  renderHeatmap();
+
+  // Lazy-load Lucide Icons
+  if (typeof window.lucide !== 'undefined') {
+    window.lucide.createIcons();
   }
 }
 
