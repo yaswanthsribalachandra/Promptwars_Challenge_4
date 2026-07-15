@@ -60,6 +60,19 @@ export function sanitizeHTML(html) {
 }
 
 /**
+ * Validates the length of input string.
+ * @param {string} str - Input string.
+ * @param {number} maxLength - Max allowed characters.
+ * @returns {boolean} True if string is valid and within limits.
+ */
+export function validateInputLength(str, maxLength) {
+  if (typeof str !== 'string') {
+    return false;
+  }
+  return str.length > 0 && str.length <= maxLength;
+}
+
+/**
  * Validates and reads integer values from local storage.
  * @param {string} key - Cache key.
  * @param {number} defaultValue - Default fallback value if invalid or empty.

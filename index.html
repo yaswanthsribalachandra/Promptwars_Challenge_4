@@ -12,7 +12,7 @@
     <!-- Content Security Policy (CSP) for Enhanced Security -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' unpkg.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' fonts.googleapis.com unpkg.com; font-src 'self' fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://generativelanguage.googleapis.com;"
+      content="default-src 'self'; script-src 'self' unpkg.com; style-src 'self' fonts.googleapis.com unpkg.com; font-src 'self' fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://generativelanguage.googleapis.com;"
     />
 
     <!-- Preconnect to Gemini API Host and Google Fonts -->
@@ -139,6 +139,7 @@
                       placeholder="e.g. Sec 102, Row B, Seat 4"
                       value="Sec 102, Row B, Seat 4"
                       aria-required="true"
+                      maxlength="40"
                     />
                     <button
                       class="btn btn-primary"
@@ -421,6 +422,7 @@
                   id="chat-message-input"
                   placeholder="Type your stadium question here..."
                   required
+                  maxlength="150"
                 />
                 <button
                   type="submit"
@@ -463,6 +465,16 @@
               </button>
             </div>
             <div class="card-body">
+              <!-- Match Stage Selector -->
+              <div class="form-group match-stage-form-group">
+                <label for="match-stage-select">Match Stage AI Simulation Mode</label>
+                <select id="match-stage-select">
+                  <option value="pre-match">Pre-Match (Arrival Flow)</option>
+                  <option value="halftime">Halftime (Concourse Bottlenecks)</option>
+                  <option value="fulltime" selected>Post-Match (Egress Traffic)</option>
+                </select>
+              </div>
+
               <!-- Heatmap Grid -->
               <div class="heatmap-container">
                 <div
@@ -541,6 +553,7 @@
                         id="incident-location"
                         placeholder="e.g. Gate C, Sec 102"
                         required
+                        maxlength="40"
                       />
                     </div>
                   </div>
@@ -551,6 +564,7 @@
                       rows="2"
                       placeholder="Describe the issue..."
                       required
+                      maxlength="200"
                     ></textarea>
                   </div>
                   <button
@@ -889,7 +903,7 @@
           </p>
           <div class="form-group">
             <label for="api-key-input">Gemini API Key</label>
-            <input type="password" id="api-key-input" placeholder="AIzaSy..." />
+            <input type="password" id="api-key-input" placeholder="AIzaSy..." maxlength="80" />
             <span class="input-hint"
               >Your API key is saved locally in your browser storage and never transmitted
               elsewhere.</span

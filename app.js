@@ -9,6 +9,7 @@ import {
   $$,
   sanitize,
   sanitizeHTML,
+  validateInputLength,
   getValidatedLocalStorageInt,
   getValidatedLocalStorageBool,
   debounce,
@@ -51,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let userEcoScore = getValidatedLocalStorageInt('arena_pulse_eco_score', 0);
 
   // Validate API key syntax lightly (must not contain spaces or control chars)
-  if (geminiApiKey && /[\s<>]/.test(geminiApiKey)) {
+  if (geminiApiKey && (/[\s<>]/.test(geminiApiKey) || geminiApiKey.length > 80)) {
     geminiApiKey = '';
     localStorage.removeItem('arena_pulse_gemini_key');
   }
@@ -149,8 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     // Validate key string defensively
-    if (/[\s<>]/.test(rawVal)) {
-      showToast('Invalid API key format', 'warning');
+    if (/[\s<>]/.test(rawVal) || !validateInputLength(rawVal, 80)) {
+      showToast('Invalid API key format or length', 'warning');
       return;
     }
     geminiApiKey = rawVal;
@@ -242,8 +243,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function locateUserSeat() {
     const rawInput = seatCodeInput.value;
     const cleanInput = sanitize(rawInput);
-    if (!cleanInput) {
-      showToast('Please enter a valid seat code', 'warning');
+
+    if (!validateInputLength(cleanInput, 40)) {
+      showToast('Please enter a valid seat code (max 40 characters)', 'warning');
       return;
     }
 
@@ -355,7 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
   async function handleChatSubmit() {
     const rawQuery = chatMessageInput.value;
     const cleanQuery = sanitize(rawQuery).trim();
-    if (!cleanQuery) {
+
+    if (!validateInputLength(cleanQuery, 150)) {
+      showToast('Please type a valid question (max 150 characters)', 'warning');
       return;
     }
 
@@ -395,24 +399,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
       addMessage(reply, 'assistant');
       speakText(reply);
-    } catch (error) {
+    } catch (_error) {
       const typingIndicator = $('.typing-indicator-msg', chatMessages);
       if (typingIndicator) {
         chatMessages.removeChild(typingIndicator);
       }
-      addMessage(
-        'Apologies, I encountered an error querying the generative model. Please check your API key configuration or network.',
-        'assistant'
-      );
+      showToast('Generative query failed. Reverting to offline simulator.', 'warning');
+      const fallbackReply = getSimulatedApiResponse(cleanQuery, currentLanguage);
+      addMessage(fallbackReply, 'assistant');
+      speakText(fallbackReply);
     }
   }
 
-  // --- OPERATIONS CONTROL heatmaps ---
+  // --- OPERATIONS CONTROL HEATMAP ---
   const refreshHeatmapBtn = $('#refresh-heatmap-btn');
   const stadiumHeatmap = $('#stadium-heatmap');
   const statOccupancy = $('#stat-occupancy');
   const statActiveIncidents = $('#stat-active-incidents');
   const statGateFlow = $('#stat-gate-flow');
+  const matchStageSelect = $('#match-stage-select');
+
+  if (matchStageSelect) {
+    matchStageSelect.addEventListener('change', () => {
+      renderHeatmap();
+      showToast(`Simulation mode stage: ${matchStageSelect.value}`, 'success');
+    });
+  }
 
   refreshHeatmapBtn.addEventListener('click', () => {
     renderHeatmap();
@@ -493,19 +505,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const flowRate = Math.floor(Math.random() * (1600 - 800) + 800);
     statGateFlow.textContent = `${flowRate}/min`;
 
-    // Render GenAI narrative crowd predictions based on metrics
-    renderCrowdPredictorNarrative(metrics.avgOccupancy);
+    // Render GenAI narrative crowd predictions based on metrics and selected stage
+    const matchStage = matchStageSelect ? matchStageSelect.value : 'fulltime';
+    renderCrowdPredictorNarrative(metrics.avgOccupancy, matchStage);
   }
 
   /**
    * Updates prediction narrative alert banner based on crowd predictions.
    *
    * @param {number} avgOccupancy - Total current stadium occupancy percent.
+   * @param {string} matchStage - Active stage ('pre-match', 'halftime', 'fulltime').
    */
-  function renderCrowdPredictorNarrative(avgOccupancy) {
+  function renderCrowdPredictorNarrative(avgOccupancy, matchStage) {
     const predictionBox = $('.transit-alert-box.info-alert');
     if (predictionBox) {
-      const narrative = getCrowdDensityPredictionNarrative(avgOccupancy);
+      const narrative = getCrowdDensityPredictionNarrative(avgOccupancy, matchStage);
       // Clean previous tip and append narrative prediction
       const tipTextNode = $('div', predictionBox) || predictionBox;
       tipTextNode.innerHTML = `<strong>Operational Intel:</strong> ${sanitize(narrative)}`;
@@ -530,8 +544,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const cleanLoc = sanitize(location).trim();
     const cleanDetails = sanitize(details).trim();
 
-    if (!cleanLoc || !cleanDetails) {
-      showToast('Please fill out all incident details', 'warning');
+    if (!validateInputLength(cleanLoc, 40) || !validateInputLength(cleanDetails, 200)) {
+      showToast('Invalid location or details character lengths', 'warning');
       return;
     }
 
@@ -815,6 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Displays an interactive toast notification alert.
+   * Uses CSS classes instead of inline style mutations to comply with strict CSP policies.
    *
    * @param {string} text - Notification text.
    * @param {string} [type='info'] - Color category ('success', 'warning', 'info').
@@ -829,18 +844,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     toastTxt.textContent = text;
-    toastDiv.classList.remove('hidden');
 
-    // Dynamically assign theme colors
-    toastDiv.style.borderColor = 'var(--border-color)';
+    // Batch class state resets to prevent inline style warnings
+    toastDiv.classList.remove('hidden', 'toast-success', 'toast-warning', 'toast-info');
+
     if (type === 'success') {
       toastIco.setAttribute('data-lucide', 'check-circle');
-      toastDiv.style.borderColor = 'var(--color-success)';
+      toastDiv.classList.add('toast-success');
     } else if (type === 'warning') {
       toastIco.setAttribute('data-lucide', 'alert-triangle');
-      toastDiv.style.borderColor = 'var(--color-warning)';
+      toastDiv.classList.add('toast-warning');
     } else {
       toastIco.setAttribute('data-lucide', 'bell');
+      toastDiv.classList.add('toast-info');
     }
 
     if (typeof window.lucide !== 'undefined') {

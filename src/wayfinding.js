@@ -3,22 +3,7 @@
  * resolving entry gates, and computing standard/accessible paths.
  */
 
-// SVG Coordinate mapping database for Stands and Gates
-export const standCoordinates = {
-  101: { cx: 200, cy: 60, name: 'North Stand (Sec 101)' },
-  102: { cx: 55, cy: 200, name: 'West Stand (Sec 102)' },
-  103: { cx: 200, cy: 60, name: 'North Stand (Sec 103)' },
-  104: { cx: 200, cy: 340, name: 'South Stand (Sec 104)' },
-  105: { cx: 345, cy: 200, name: 'East Stand (Sec 105)' },
-  106: { cx: 200, cy: 340, name: 'South Stand (Sec 106)' },
-};
-
-export const gateCoordinates = {
-  'Gate A': { cx: 200, cy: 25 },
-  'Gate B': { cx: 380, cy: 200 },
-  'Gate C': { cx: 200, cy: 375 },
-  'Gate D': { cx: 20, cy: 200 },
-};
+import { standCoordinates, gateCoordinates } from './constants.js';
 
 /**
  * Parses seat input string and extracts section identifier.

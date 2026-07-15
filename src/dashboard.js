@@ -3,32 +3,7 @@
  * live heatmap generation, incident triage, and AI-reasoned announcements helper.
  */
 
-export const heatmapSections = [
-  'N-101',
-  'N-102',
-  'N-103',
-  'E-104',
-  'E-105',
-  'E-106',
-  'S-107',
-  'S-108',
-  'S-109',
-  'W-110',
-  'W-111',
-  'W-112',
-  'V-201',
-  'V-202',
-  'V-203',
-  'V-204',
-  'M-301',
-  'M-302',
-  'M-303',
-  'M-304',
-  'G-A',
-  'G-B',
-  'G-C',
-  'G-D',
-];
+import { heatmapSections } from './constants.js';
 
 /**
  * Generates an object of randomized section occupancy levels.
@@ -159,16 +134,31 @@ export function generateAnnouncement(type, location) {
 
 /**
  * Returns narrative predictions for crowd density based on occupancy rates.
+ * Supports different predictions based on the match stage for deeper GenAI reasoning.
  *
  * @param {number} occupancyPct - Total current stadium occupancy percent.
+ * @param {string} matchStage - Active stage ('pre-match', 'halftime', 'fulltime').
  * @returns {string} Narrative prediction.
  */
-export function getCrowdDensityPredictionNarrative(occupancyPct) {
+export function getCrowdDensityPredictionNarrative(occupancyPct, matchStage = 'fulltime') {
+  const stage = typeof matchStage === 'string' ? matchStage.toLowerCase() : 'fulltime';
+
   if (occupancyPct >= 90) {
-    return '🚨 [AI Crowd Predictor]: CRITICAL congestion. Exit wait times will exceed 40 minutes. Recommendation: Delay post-game gate opening for upper tiers, hold fans in stands for 15 mins to ease exit bottlenecks.';
+    if (stage === 'pre-match') {
+      return '🚨 [AI Crowd Predictor - Pre-Match]: Stadium is at near capacity. Security queues at Gates A and D will experience 25-minute delays. Action: Dynamically deploy volunteers to redirect arriving ticketholders to Gate B scanner lanes.';
+    }
+    if (stage === 'halftime') {
+      return '⚠️ [AI Crowd Predictor - Halftime]: Concourse areas are critically packed. Restroom queue delays are estimated at 12 minutes. Action: Announce availability of auxiliary restrooms behind mid-stands.';
+    }
+    return '🚨 [AI Crowd Predictor - Post-Match]: CRITICAL exit congestion. Egress paths from upper decks are blocked. Action: Implement staged gate releases (hold VIP/mid stand flow for 10 mins) and deploy 5 extra shuttle buses to Gate C.';
   }
+
   if (occupancyPct >= 70) {
-    return '⚠️ [AI Crowd Predictor]: HIGH congestion. Shuttles and Metro stations are experiencing heavy queues. Recommendation: Open auxiliary gates B and C immediately.';
+    if (stage === 'pre-match') {
+      return '⚠️ [AI Crowd Predictor - Pre-Match]: High arrival rates. Scanner check times are estimated at 10 minutes. Suggest: Arrive early.';
+    }
+    return '⚠️ [AI Crowd Predictor - Post-Match]: Moderate-high exit flow. Metro terminal queues are building. Shuttles are clear.';
   }
-  return '✅ [AI Crowd Predictor]: MODERATE congestion. Normal operations. Exit patterns flowing smoothly.';
+
+  return '✅ [AI Crowd Predictor]: normal operations. Congestion indices are minimal.';
 }

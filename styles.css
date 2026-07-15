@@ -1599,6 +1599,18 @@ textarea:focus {
   transform: translateY(0);
 }
 
+.toast-success {
+  border-color: var(--color-success) !important;
+}
+
+.toast-warning {
+  border-color: var(--color-warning) !important;
+}
+
+.toast-info {
+  border-color: var(--border-color) !important;
+}
+
 .toast.hidden {
   opacity: 0;
   transform: translateY(20px);

@@ -2,24 +2,9 @@
  * @fileoverview Sustainability tracker: EcoScore calculations, levels, and green recommendations.
  */
 
-export const ecoActions = {
-  transit: {
-    points: 50,
-    desc: 'Took Public Transport / Shuttles',
-  },
-  recycle: {
-    points: 20,
-    desc: 'Recycled Plastic Cups/Bottles at Smart Bin',
-  },
-  reusable: {
-    points: 30,
-    desc: 'Brought Reusable Cup/Bag',
-  },
-  clean: {
-    points: 15,
-    desc: 'Cleared Seat Trash after the Match',
-  },
-};
+import { ecoActions } from './constants.js';
+
+export { ecoActions };
 
 /**
  * Calculates total session points based on logged actions.

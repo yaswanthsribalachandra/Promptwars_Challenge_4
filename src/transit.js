@@ -3,35 +3,9 @@
  * and congestion recommendations.
  */
 
-/**
- * Transit option configuration dictionary.
- */
-export const transitOptions = [
-  {
-    id: 'metro-a',
-    name: 'Stadium Metro Station (Line A)',
-    baseWait: 35,
-    congestion: 'high',
-    statusText: 'Congested',
-    badgeClass: 'badge-red',
-  },
-  {
-    id: 'shuttles',
-    name: 'Park & Ride Shuttles (East & West Lots)',
-    baseWait: 15,
-    congestion: 'moderate',
-    statusText: 'Moderate',
-    badgeClass: 'badge-orange',
-  },
-  {
-    id: 'rideshare',
-    name: 'Rideshare Hub (Zone F - Outer Ring)',
-    baseWait: 10,
-    congestion: 'clear',
-    statusText: 'Clear',
-    badgeClass: 'badge-green',
-  },
-];
+import { transitOptions } from './constants.js';
+
+export { transitOptions };
 
 /**
  * Computes dynamic wait times based on active operations incidents count and base times.
