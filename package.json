@@ -1,0 +1,19 @@
+{
+  "name": "fifa-arena-pulse",
+  "version": "1.1.0",
+  "description": "ArenaPulse AI - FIFA World Cup 2026 Stadium Operations & Fan Assistant",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint \"**/*.js\"",
+    "lint:fix": "eslint \"**/*.js\" --fix",
+    "format": "prettier --write \"**/*.{js,css,html}\""
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
+  }
+}
